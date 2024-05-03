@@ -1,5 +1,9 @@
 # About
 
+## Plotting experimental data
+
+The processed experimental data used in the manuscript's plots is located in the `Data` folder. You can find the plotting script in the `Code/process_results/experimental_data` directory. To generate the plots, run any of the R scripts from this directory. The scripts only use standard [Tidyverse](https://www.tidyverse.org/) R packages for plotting.
+
 ## Particle simulators
 
 ### Running simulations
@@ -32,4 +36,4 @@ The simulations can take **long** time to run (should be run on a cluster), ther
 
 ### Process results
 
-To process results, navigate to the `Code/process_results/particle_simulators` directory. From this directory run the `plot.R` script. Only standard tidyverse R packages are used for plotting.
+To process results, navigate to the `Code/process_results/particle_simulators` directory. From this directory run the `plot.R` script. Only standard [Tidyverse](https://www.tidyverse.org/) R packages are used for plotting.
