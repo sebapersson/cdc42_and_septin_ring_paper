@@ -4,6 +4,18 @@
 
 The processed experimental data used in the manuscript's plots is located in the `Data` folder. You can find the plotting script in the `Code/process_results/experimental_data` directory. To generate the plots, run any of the R scripts from this directory. The scripts only use standard [Tidyverse](https://www.tidyverse.org/) R packages for plotting.
 
+## Cdc42 and septin ring simulations
+
+TODO: Check these can run after refactoring.
+
+The scripts for the Cdc42 and Septin ring simulations are located in the `Code/cdc42_septin_simulations` directory. The simulation code is in Python, and you can set up the necessary Python environment using the provided Conda YAML file. To install the packages, given a conda installation enter the following command in the terminal:
+
+```bash
+conda env create -f cdc42.yml
+```
+
+Before running the main simulations, ensure that the pre-simulations specified in the `Run_pre_runs.py` files are completed. The models are simulated using a finite-element solver (FEM), with model geometry meshes created in [Gmsh](https://gmsh.info/). A Gmsh installation is not required—since we provide the generated `.msh` file in the simulation directory. When running a simulation the pvd-files and summary statistics (such as cluster area), are stored in the `Results` and `Intermediate` folders, respectively. Given the substantial computational resources required (over 10,000 CPU hours), these simulations are best run on a cluster. We can provide access to the large simulation files (too large for GitHub), upon request.
+
 ## Particle simulators
 
 ### Running simulations
