@@ -3,7 +3,6 @@ library(stringr)
 library(ggthemes)
 library(readxl)
 
-
 # General plotting parameters (plot using theme-tufte)
 cbPalette <- c(
   "#999999", "#E69F00", "#56B4E9", "#009E73",
