@@ -8,8 +8,6 @@ The processed experimental data used in the manuscript's plots is located in the
 
 ## Cdc42 and septin ring simulations
 
-To process results, navigate to the `Code/process_results/cdc42_cluster` or `Code/process_results/septin_ring_size` directories. From the chosen directory run the `plot.R` script. Only standard [Tidyverse](https://www.tidyverse.org/) R packages are used for plotting.
-
 ### Running simulations
 
 TODO: Check these can run after refactoring.
@@ -23,6 +21,8 @@ conda env create -f cdc42.yml
 Before running the main simulations, ensure that the pre-simulations specified in the `Run_pre_runs.py` files are completed. The models are simulated using a finite-element solver (FEM), with model geometry meshes created in [Gmsh](https://gmsh.info/). A Gmsh installation is not required—since we provide the generated `.msh` file in the simulation directory. When running a simulation the pvd-files and summary statistics (such as cluster area), are stored in the `Results` and `Intermediate` folders, respectively. Given the substantial computational resources required (over 10,000 CPU hours), these simulations are best run on a cluster. We can provide access to the large simulation files (too large for GitHub), upon request.
 
 ### Process results
+
+To process results, navigate to the `Code/process_results/cdc42_cluster` or `Code/process_results/septin_ring_size` directories. From the choosen directory run the `plot.R` script. Only standard [Tidyverse](https://www.tidyverse.org/) R packages are used for plotting.
 
 ## Particle simulators
 
