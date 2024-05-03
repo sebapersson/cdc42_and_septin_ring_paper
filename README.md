@@ -12,7 +12,7 @@ The processed experimental data used in the manuscript's plots is located in the
 
 TODO: Check these can run after refactoring.
 
-The scripts for the Cdc42 and Septin ring simulations are located in the `Code/cdc42_septin_simulations` directory. The simulation code is in Python, and you can set up the necessary Python environment using the provided Conda YAML file. To install the packages, given a conda installation enter the following command in the terminal:
+The scripts for the Cdc42 and Septin ring simulations are located in the `Code/cdc42_septin_simulations` directory, while the simulation code for the alternative model can be found in the `Code/cdc42_alt_simulations` directory. The simulation code is in Python, and you can set up the necessary Python environment using the provided Conda YAML file. To install the packages, given a conda installation enter the following command in the terminal:
 
 ```bash
 conda env create -f cdc42.yml
@@ -22,7 +22,7 @@ Before running the main simulations, ensure that the pre-simulations specified i
 
 ### Process results
 
-To process results, navigate to the `Code/process_results/cdc42_cluster` or `Code/process_results/septin_ring_size` directories. From the choosen directory run the `plot.R` script. Only standard [Tidyverse](https://www.tidyverse.org/) R packages are used for plotting.
+To process results, navigate to the `Code/process_results/cdc42_cluster`, `Code/process_results/cdc42_alt_cluster` or `Code/process_results/septin_ring_size` directories. From the chosen directory run the `plot.R` script. Only standard [Tidyverse](https://www.tidyverse.org/) R packages are used for plotting.
 
 ## Particle simulators
 
