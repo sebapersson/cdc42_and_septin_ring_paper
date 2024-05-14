@@ -132,3 +132,15 @@ if(!dir.exists(dir_save)) dir.create(dir_save, recursive = T)
 ggsave(file.path(dir_save, "Max_cdc10_vol.svg"), p1, width = BASE_WIDTH, height = BASE_HEIGHT)
 ggsave(file.path(dir_save, "Max_cluster_vol_HOMO.svg"), p6, width = BASE_WIDTH, height = BASE_HEIGHT)
 
+data_WT <- data_g |> filter(strain_type == "WT")
+mm_WT <- lm(logarea ~ logvolume, data_WT)
+summary(mm_WT)
+data_mutant <- data_g |> filter(strain_type != "WT")
+mm_mutant <- lm(logarea ~ logvolume, data_mutant)
+summary(mm_mutant)
+
+ggplot(data_g, aes(logvolume, logarea)) + 
+  geom_point(alpha = 0.4, size=1.0) + 
+  geom_smooth(method = "lm") + 
+  facet_wrap(~strain_type) + 
+  theme_bw(base_size = 16)
