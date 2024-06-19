@@ -134,7 +134,7 @@ data_tot <- process_simulated_data_files(dir_experiment) |>
   mutate(t_end = t_end * R^2 /(0.011*60)) 
 
 data_pole <- data_tot |> 
-  mutate(pole_size = ratio * 4 * pi * (R)^2) |> 
+  mutate(pole_size = ratio_hard/100 * 4 * pi * (R)^2) |> 
   filter(ratio < 20) |> 
   filter(R > 3.0) |> 
   filter(n_poles == 1) |> 
@@ -155,12 +155,10 @@ p1 <- ggplot(data_pole, aes(log10(V), log10(pole_size))) +
         plot.title = element_text(color="grey10", face ="bold", size=12), 
         plot.subtitle = element_text(color="grey30"))
 
-p2 <- ggplot(data_pole, aes(V, u_max)) + 
+p2 <- ggplot(data_pole, aes(log10(V), log10(u_max))) + 
   geom_smooth(linewidth=2.0, method="lm", color="grey50") + 
   geom_point(size=3.0, color="grey10") + 
   labs(x = "Cell radius [µm]", y = "Cdc42-GTP pole-size", title = "Model : k8h") + 
-  scale_x_log10() + 
-  scale_y_log10() + 
   labs(y = "Maximum Cdc42-GTP diameter [µm]", x = "Cell volume [fL]", 
        title = "Positive feedback : Max Cdc42 increases with cell volume", 
        subtitle = "log10 transformed x- and y-axis") + 

@@ -55,7 +55,7 @@ p <- ggplot(data_plot, aes(color = classification)) +
   labs(x = "Gene name", y = "Protein slope", 
        title = "Most polarisation related genes have close to constant concentration (slope = 0)", 
        subtitle = "The bar is the mean from fitting three replication experiments") + 
-  scale_y_continuous(breaks = seq(from = -1.3, to = 1.4, by = 0.2)) +
+  scale_y_continuous(breaks = seq(from = -1.25, to = 1.25, by = 0.25)) +
   scale_color_manual(values = cbPalette[-c(1, 5)],  name = "Type") + 
   theme_bw(base_size = 14) +
   theme(panel.grid.minor.y = element_blank(), 
@@ -98,7 +98,7 @@ p2 <- ggplot(data_size_mutants, aes(color = classification)) +
   labs(x = "Gene name", y = "Protein slope", 
        title = "Most polarisation related genes have close to constant concentration (slope = 0)", 
        subtitle = "The bar is the mean from fitting three replication experiments") + 
-  scale_y_continuous(breaks = seq(from = -1.3, to = 1.4, by = 0.2)) +
+  scale_y_continuous(breaks = seq(from = -1.25, to = 1.25, by = 0.25), limits=c(-1.3, 1.3)) +
   scale_color_manual(values = cbPalette[-c(1, 5)],  name = "Type") + 
   theme_bw(base_size = 14) +
   theme(panel.grid.minor.y = element_blank(), 

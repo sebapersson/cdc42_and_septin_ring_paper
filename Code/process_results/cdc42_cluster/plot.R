@@ -46,7 +46,7 @@ p1 <- ggplot(data_tot, aes(log10(V), log10(pole_size))) +
   labs(x = "Cell radius [µm]", y = "Cdc42-GTP pole-area [µm²]") +
   scale_color_manual(values = col_use, name = "Factor Cdc42 reduced") + 
   scale_fill_manual(values = col_use, name = "Factor Cdc42 reduced") +
-  scale_y_continuous(limits = c(0.3, 2.9), breaks = c(0.5, 1.5, 2.5)) + 
+  scale_y_continuous(limits = c(-0.5, 0.5), breaks = c(-0.5, -0.25, 0.0, 0.25, 0.5)) + 
   labs(y = "log10(Cdc42-GTP pole area) [µm]", x = "log10(Cell volume) [fL]", 
        title = "Positive feedback model: Pole area increases with cell volume", 
        subtitle = "log10 transformed x- and y-axis") + 
@@ -73,7 +73,7 @@ p1_alt <- ggplot(data_plot_both, aes(log10(V), log10(pole_size))) +
   labs(x = "Cell radius [µm]", y = "Cdc42-GTP pole-area [µm²]") +
   scale_color_manual(values = col_use, name = "Factor Cdc42 reduced") + 
   scale_fill_manual(values = col_use, name = "Factor Cdc42 reduced") +
-  scale_y_continuous(limits = c(2.15, 3.005), breaks = c(2.20, 2.4, 2.6, 2.8, 3.0)) +
+  scale_y_continuous(limits = c(-0.1, 0.86)) +
   labs(y = "log10(Cdc42-GTP pole area) [µm]", x = "log10(Cell volume) [fL]", 
        title = "Positive feedback model: Pole area increases with cell volume") + 
   theme_bw(base_size = 14) + 
@@ -106,14 +106,13 @@ data_part <- process_files(dir_experiment) |>
   mutate(V = r_num^3 * 4*pi / 3) |> 
   mutate(pole_diameter = 2*sqrt(pole_size / pi))
 
-p1 <- ggplot(data_part, aes(V, pole_size)) + 
+p1 <- ggplot(data_part, aes(log10(V), log10(pole_size))) + 
   geom_smooth(linewidth=2.0, method="lm", color="grey50") + 
   geom_point(size=3.0, color="grey10") + 
   scale_fill_manual(values = cbPalette[-1], name = "Strength k8h") + 
   scale_color_manual(values = cbPalette[-1], name = "Strength k8h") + 
+  scale_y_continuous(limits = c(-0.1, 0.86)) +
   labs(x = "log10(Max Cdc42-GTP concentration) [A.U]", x = "log10(Cdc42-GTP pole area) [µm²]", title = "Model : k8h") + 
-  scale_x_log10() + 
-  scale_y_log10() + 
   theme_bw(base_size = 14) + 
   theme(legend.position = "bottom", 
         axis.title = element_text(color="grey10"),
@@ -138,6 +137,7 @@ p2 <- ggplot(data_plot_both, aes(pole_size, max_val)) +
   scale_fill_manual(values = cbPalette[-1], name = "Strength k8h") + 
   scale_color_manual(values = cbPalette[-1], name = "Strength k8h") + 
   labs(y = "log10(Max Cdc42-GTP concentration) [A.U]", x = "log10(Cdc42-GTP pole area) [µm²]", title = "Model : k8h") + 
+  scale_y_continuous(breaks = c(80, 90, 100, 110)) + 
   theme_bw(base_size = 14) + 
   theme(legend.position = "bottom", 
         axis.title = element_text(color="grey10"),
@@ -150,7 +150,7 @@ p3 <- ggplot(data_plot_both, aes(log10(V), log10(pole_size))) +
   scale_fill_manual(values = cbPalette[-1], name = "Strength k8h") + 
   scale_color_manual(values = cbPalette[-1], name = "Strength k8h") + 
   labs(x = "log10(Cell volume) [fL]", y = "log10(Cdc42-GTP pole area) [µm²]", title = "Model : k8h") + 
-  scale_y_continuous(limits = c(0.3, 2.9), breaks = c(0.5, 1.5, 2.5)) + 
+  scale_y_continuous(limits = c(-0.5, 0.5), breaks = c(-0.5, -0.25, 0.0, 0.25, 0.5)) + 
   theme_bw(base_size = 14) + 
   theme(legend.position = "bottom", 
         axis.title = element_text(color="grey10"),
@@ -230,7 +230,7 @@ data_part <- process_files(dir_experiment) |>
 
 col_use <- c("#6baed6", "#2171b5")
 p1 <- ggplot(data_part, aes(log10(V), log10(pole_size), color=scale_k2b, fill=scale_k2b)) + 
-  geom_smooth(linewidth=2.0, method="lm") + 
+  geom_smooth(linewidth=2.0) + 
   geom_point(size=3.0) + 
   scale_fill_manual(values = col_use, name = "GAP activity") + 
   scale_color_manual(values = col_use, name = "GAP activity") + 
@@ -268,39 +268,13 @@ ggsave(file.path(dir_save, "Pos_conc_vol_GAP.svg"), p2, width = BASE_WIDTH, heig
 # Experimenting with smaller scaling pos (protein dilution positive feedback model)
 # ----------------------------------------------------------------------------------------------------
 dir_experiment <- file.path("..", "..", "..", "Intermediate", "Simulations", "Pole_size", "2d_pos_weak_inc_beta50")
-data1 <- process_files(dir_experiment) |> mutate(beta = "0.50")
+data1 <- process_files(dir_experiment) |> mutate(beta = "0.50", V = r_num^3 * 4*pi/3)
 dir_experiment <- file.path("..", "..", "..", "Intermediate", "Simulations", "Pole_size", "2d_pos_weak_inc_beta75")
-data2 <- process_files(dir_experiment) |> mutate(beta = "0.75")
-
+data2 <- process_files(dir_experiment) |> mutate(beta = "0.75", V = r_num^3 * 4*pi/3)
 col_use <- c("#99d8c9", "#238b45", "#238b48")
-p1 <- ggplot(data2, aes(log10(r_num^3*4*pi/3), log10(pole_size), color = beta, fill = beta)) + 
-  geom_point(size = 3.0) + 
-  geom_smooth(linewidth = 2.0, method="lm") + 
-  scale_fill_manual(values = "#6a51a3", name = "Beta") + 
-  scale_color_manual(values ="#6a51a3", name = "Beta") +
-  labs(x = "Cell volume [fL]", y = "Cdc42-GTP cluster area [µm²]") + 
-  scale_y_continuous(limits=c(2.6, 2.9)) +
-  my_theme +
-  theme(legend.position = "none", 
-        axis.title = element_text(color="grey10"),
-        plot.title = element_text(color="grey10", face ="bold", size=12), 
-        plot.subtitle = element_text(color="grey30"))
 
-p2 <- ggplot(data1, aes(log10(r_num^3*4*pi/3), log10(pole_size), color = beta, fill = beta)) + 
-  geom_point(size = 3.0) + 
-  geom_smooth(linewidth = 2.0, method="lm") + 
-  scale_fill_manual(values = "#9e9ac8", name = "Beta") + 
-  scale_color_manual(values ="#9e9ac8", name = "Beta") +
-  labs(x = "Cell volume [fL]", y = "Cdc42-GTP cluster area [µm²]") + 
-  scale_y_continuous(limits=c(2.6, 2.9)) +
-  my_theme + 
-  theme(legend.position = "none", 
-        axis.title = element_text(color="grey10"),
-        plot.title = element_text(color="grey10", face ="bold", size=12), 
-        plot.subtitle = element_text(color="grey30"))
-
-ggsave(file.path(dir_save, "Pos_beta75.svg"), p1, width = BASE_WIDTH, height = BASE_HEIGHT)
-ggsave(file.path(dir_save, "Pos_beta50.svg"), p2, width = BASE_WIDTH, height = BASE_HEIGHT)
+data1_pos <- data1
+data2_pos <- data2
 
 # ----------------------------------------------------------------------------------------------------
 # Experimenting with smaller scaling (dilution) nf model
@@ -316,32 +290,42 @@ data_tot <- bind_rows(data1, data2) |>
 data50 <- data_tot |> filter(beta == "0.50")
 data75 <- data_tot |> filter(beta == "0.75")
 
+data1_nf <- data50
+data2_nf <- data75
+
 col_use <- "#9e9ac8"
-p1_50 <- ggplot(data50, aes(log10(V), log10(pole_size))) + 
-  geom_point(size=3.0, color=col_use) + 
-  geom_smooth(linewidth=2.0, method="lm", fill=col_use, color=col_use) + 
+data1_plot <- bind_rows(mutate(data1_pos, model = "Pos"), mutate(data1_nf, model = "Neg"))
+p1 <- ggplot(data1_plot, aes(log10(V), log10(pole_size), color=model)) + 
+  geom_point(aes(shape=model), size=3.0, color=col_use) + 
+  geom_smooth(aes(linetype=model), linewidth=2.0, method="lm", color=col_use, fill=col_use) + 
   labs(y = "log10(Cdc42-GTP pole area) [µm²]", x = "log10(Cell volume) [fL]", 
        title = "β = 0.5") + 
+  scale_y_continuous(limits = c(-0.1, 0.6)) +
   scale_x_continuous(limits = c(1.8, 2.45), breaks = c(1.8, 2.0, 2.2, 2.4)) +
-  scale_y_continuous(limits = c(2.25, 2.5), breaks = c(2.25, 2.35, 2.45)) + 
   theme_bw(base_size = 14) + 
   theme(axis.title = element_text(color="grey10"),
         plot.title = element_text(color="grey10", face ="bold", size=12), 
         plot.subtitle = element_text(color="grey30"), 
         legend.position = "nothing")
+
 col_use <- "#6a51a3"
-p1_75 <- ggplot(data75, aes(log10(V), log10(pole_size))) + 
-  geom_point(size=3.0, color=col_use) + 
-  geom_smooth(linewidth=2.0, method="lm", fill=col_use, color=col_use) + 
+data2_plot <- bind_rows(mutate(data2_pos, model = "Pos"), mutate(data2_nf, model = "Neg"))
+p2 <- ggplot(data2_plot, aes(log10(V), log10(pole_size), color=model)) + 
+  geom_point(aes(shape=model), size=3.0, color=col_use) + 
+  geom_smooth(aes(linetype=model), linewidth=2.0, method="lm", color=col_use, fill=col_use) + 
   labs(y = "log10(Cdc42-GTP pole area) [µm²]", x = "log10(Cell volume) [fL]", 
        title = "β = 0.75") + 
   scale_x_continuous(limits = c(1.8, 2.45), breaks = c(1.8, 2.0, 2.2, 2.4)) +
-  scale_y_continuous(limits = c(2.25, 2.5), breaks = c(2.25, 2.35, 2.45)) + 
+  scale_y_continuous(limits = c(-0.1, 0.6)) +
   theme_bw(base_size = 14) + 
   theme(axis.title = element_text(color="grey10"),
         plot.title = element_text(color="grey10", face ="bold", size=12), 
         plot.subtitle = element_text(color="grey30"), 
         legend.position = "nothing")
+
+ggsave(file.path(dir_save, "Both_beta50.svg"), p1, width = BASE_WIDTH, height = BASE_HEIGHT)
+ggsave(file.path(dir_save, "Both_beta75.svg"), p2, width = BASE_WIDTH, height = BASE_HEIGHT)
+
 
 # Visual to explore the scaling 
 r_ref <- 2.5
@@ -371,7 +355,7 @@ data_scaling <- bind_rows(data_scaling1, data_scaling2, data_scaling3, data_scal
   mutate(beta = as.factor(beta))
 
 col_use <- rev(c("#3f007d", "#6a51a3", "#9e9ac8", "#dadaeb"))
-p2 <- ggplot(data_scaling, aes(log10(V), c, color = beta)) + 
+p2 <- ggplot(data_scaling, aes(log10(V), log10(c), color = beta)) + 
   geom_line(linewidth=2.0) + 
   scale_x_continuous(limits = c(1.8, 2.45), breaks = c(1.8, 2.0, 2.2, 2.4)) +
   labs(x = "Cell volume [fL]", y = "Cdc42-GTP totalt concentration [µM]", 
@@ -426,7 +410,7 @@ p2 <- ggplot(data_plot_both, aes(log10(V), log10(pole_size))) +
   scale_fill_manual(values = cbPalette[-1], name = "Strength k8h") + 
   scale_color_manual(values = cbPalette[-1], name = "Strength k8h") + 
   labs(x = "log10(Cell volume) [fL]", y = "log10(Cdc42-GTP pole area) [µm²]", title = "Model : k8h") + 
-  scale_y_continuous(limits = c(2.15, 3.005), breaks = c(2.20, 2.4, 2.6, 2.8, 3.0)) +
+  scale_y_continuous(limits = c(-0.1, 0.86)) +
   theme_bw(base_size = 14) + 
   theme(legend.position = "bottom", 
         axis.title = element_text(color="grey10"),

@@ -18,8 +18,8 @@ BASE_WIDTH <- 7.0
 # -----------------------------------------------------------------------------------------------------------------
 file_path <- file.path("..", "..", "..", "Data", "v0_cdc24kk_cdc11_plotted_data.csv")
 data_b <- read_csv(file_path, col_types = cols()) |> 
-  mutate(logvolume = log10(cell_vol_at_max_ring_diam_fl), 
-         logdiameter = log10(max_cdc11_ring_diameter))
+  mutate(logvolume = log10(cell_vol_median_in_S), 
+         logdiameter = log10(max_cdc11_ring_diameter * 0.0865202)) # Data given in pixels
 mybins <- cut(data_b$cell_vol_at_max_ring_diam_fl, breaks=14)
 data_foo <- data_b |> 
   mutate(mybins = mybins) |> 
@@ -55,7 +55,9 @@ data_sum <- data_b |>
   summarise(n = n())
 
 file_path <- file.path("..", "..", "..", "Data", "v0_cdc24kk_cdc11_ring_over_time.csv")
-data_c <- read_csv(file_path, col_types = cols())
+data_c <- read_csv(file_path, col_types = cols()) |> 
+  mutate(ring_diameter_mean = ring_diameter_mean * 0.0865202, 
+         standard_error_mean = standard_error_mean * 0.0865202)
 p2 <- ggplot(data_c, aes(frame_i, ring_diameter_mean, color = strain_type, fill = strain_type)) + 
   geom_line(linewidth=1.5) +
   geom_ribbon(aes(ymin = ring_diameter_mean - standard_error_mean, ymax = ring_diameter_mean + standard_error_mean), 

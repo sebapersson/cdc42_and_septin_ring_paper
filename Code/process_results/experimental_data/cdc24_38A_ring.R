@@ -12,6 +12,8 @@ my_theme <- theme_bw(base_size = 16) + theme(plot.title = element_text(hjust = 0
   theme(axis.title=element_text(size=21))
 BASE_HEIGHT <- 5
 BASE_WIDTH <- 7.0
+SCALE_AREA <- 0.0865202^2
+SCALE_DIAMETER <- 0.0865202
 
 # -----------------------------------------------------------------------------------------------------------------
 # Diploid results
@@ -20,7 +22,7 @@ BASE_WIDTH <- 7.0
 file_path <- file.path("..", "..", "..", "Data", "v0_cdc24_38a_cdc10_plotted_data.csv")
 data_b <- read_csv(file_path, col_types = cols()) |> 
   mutate(logvolume = log10(cell_vol_at_max_ring_diam_fl), 
-         log_diameter = log10(max_cdc10_ring_diameter))
+         log_diameter = log10(max_cdc10_ring_diameter * SCALE_DIAMETER))
 mybins <- cut(data_b$logvolume, breaks=9)
 data_foo <- data_b |> 
   mutate(mybins = mybins) |> 
@@ -57,13 +59,13 @@ data_sum <- data_b |>
 data_foo <- data_b |> 
   mutate(mybins = mybins) |> 
   group_by(strain_type, mybins) |> 
-  summarise(mean_val = mean(max_cdc10_ring_diameter), 
-            sd_val = sd(max_cdc10_ring_diameter) / sqrt(n()), 
+  summarise(mean_val = mean(cdc10_ring_diameter_median_in_S), 
+            sd_val = sd(cdc10_ring_diameter_median_in_S) / sqrt(n()), 
             n = n()) 
 valx <- data_b |> 
   mutate(mybins = mybins) |> 
   group_by(mybins) |> 
-  summarise(mean_x = mean(cell_vol_at_max_ring_diam_fl))
+  summarise(mean_x = mean(cell_vol_median_in_S))
 data_bins <- inner_join(data_foo, valx)
 data_wt <- (data_bins |> filter(strain_type != "mutant"))[2:5, ]
 data_mutant <- (data_bins |> filter(strain_type == "mutant"))[2:5, ]
@@ -74,7 +76,7 @@ print(sprintf("Mean val = %.3f +/- %.3f", mean(ratio_val), sd(ratio_val)))
 file_path <- file.path("..", "..", "..", "Data", "v1_cdc24_38a_cdc42_strain-DLY1657_max_cluster_size.csv")
 data_g <- read_csv(file_path, col_types = cols()) |>  
   mutate(logvolume = log10(cell_vol_fl), 
-         logarea = log10(max_cdc42_cluster_size))
+         logarea = log10(max_cdc42_cluster_size * SCALE_AREA))
 mybins <- cut(data_g$logvolume, breaks=9)
 data_foo <- data_g |> 
   mutate(mybins = mybins) |> 
@@ -144,3 +146,52 @@ ggplot(data_g, aes(logvolume, logarea)) +
   geom_smooth(method = "lm") + 
   facet_wrap(~strain_type) + 
   theme_bw(base_size = 16)
+
+# Over time
+path_file <- file.path("..", "..", "..", "Data", "v0_cdc24_38a_cdc10_ring_over_time.csv")
+data_s <- read_csv(path_file, col_types = cols()) |> 
+  mutate(ring_diameter_mean = ring_diameter_mean * 0.0865202, 
+         standard_error_mean = standard_error_mean * 0.0865202) # Pixel -> µm
+
+p1 <- ggplot(data_s, aes(frame_i, ring_diameter_mean, color = strain_type, fill = strain_type)) + 
+  geom_line(linewidth=1.5) +
+  geom_ribbon(aes(ymin = ring_diameter_mean - standard_error_mean, ymax = ring_diameter_mean + standard_error_mean), 
+              alpha=0.5, color=NA) + 
+  labs(y = "Cdc10 ring diameter [µm]", 
+       x = "Frame number since bud emergence", 
+       title = "Title in progress") + 
+  scale_x_continuous(breaks = seq(from = -10, by = 10, to = 50)) + 
+  scale_color_manual(values = cbPalette[c(6, 2)]) +
+  scale_fill_manual(values = cbPalette[c(6, 2)]) +
+  theme_bw(base_size = 14) +
+  theme(legend.position = "bottom",
+        axis.title = element_text(color="grey10"),
+        plot.title = element_text(color="grey10", face ="bold"), 
+        plot.subtitle = element_text(color="grey30"))
+
+data_wt <- data_s |> 
+  filter(strain_type == "WT") |> 
+  select(frame_i, ring_diameter_mean) |> 
+  rename("ring_diameter_wt" = "ring_diameter_mean")
+data_mutant <- data_s |> 
+  filter(strain_type != "WT") |> 
+  filter(frame_i %in% unique(data_wt$frame_i)) |> 
+  select(frame_i, ring_diameter_mean) |> 
+  rename("ring_diameter_mutant" = "ring_diameter_mean")
+data_plot <- inner_join(data_wt, data_mutant, by = c("frame_i"))
+
+p2 <- ggplot(data_plot, aes(frame_i, ring_diameter_mutant / ring_diameter_wt)) + 
+  geom_line(linewidth=1.0) +
+  scale_y_continuous(breaks = c(0.8, 0.85, 0.9, 0.95, 1.0, 1.05, 1.10), limits = c(0.8, 1.10)) +
+  labs(x = "Frame since bud emergence", 
+       y = "Ring diameter mutant normalised with WT", 
+       title = "Ring diameter normalised with WT") + 
+  theme_bw(base_size = 14) +
+  theme(legend.position = "bottom",
+        panel.grid.minor = element_blank(),
+        axis.title = element_text(color="grey10"),
+        plot.title = element_text(color="grey10", face ="bold"), 
+        plot.subtitle = element_text(color="grey30"))
+
+ggsave(file.path(dir_save, "Diameter_time.svg"), p1, width = BASE_WIDTH, height = BASE_HEIGHT)
+ggsave(file.path(dir_save, "Diameter_time_norm.svg"), p6, width = BASE_WIDTH, height = BASE_HEIGHT)

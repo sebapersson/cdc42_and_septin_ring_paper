@@ -260,7 +260,8 @@ data_mean <- data_plot |>
   summarise(mean = mean(dist_centre))
 p <- ggplot(data_plot, aes(weight, dist_centre, fill=weight)) + 
   geom_violin(bw=0.03, draw_quantiles=0.5, linewidth=1.0) + 
-  scale_y_continuous(expand=c(0, 0, 0.1, 0.1)) + 
+  scale_y_continuous(limits=c(0, 0.53), 
+                     breaks = c(0, 0.25, 0.5)) + 
   scale_fill_brewer(palette = "Oranges", name = "β") + 
   labs(y = "Distance to pole centre", x = "β", 
        title = "With increased β the exocytosis distribution becomes more centred", 
@@ -317,8 +318,9 @@ data_plot <- data_tot |>
 p <- ggplot(data_plot, aes(weight_centre, dist_mean)) + 
   geom_smooth(linewidth=2.0, color="grey30", method="lm") + 
   geom_point(size=3.0, color="grey20", alpha=0.8) + 
-  facet_wrap(~what_plot, scale = "free_y") + 
+  facet_wrap(~what_plot) + 
   theme_bw(base_size = 14) +
+  ylim(0.7, 2.4) +
   labs(x = "β", y = "Ring diameter", 
        title = "Particle simulator : Ring diameter increase with less wide-spread exocytosis (larger β)", 
        subtitle = "Effect bigger with lower diffusion dm=0.00045. Each dot = 1 simulation and koff=0.1") + 
@@ -344,7 +346,8 @@ data_plot <- data_tot |>
 p <- ggplot(data_plot, aes(weight_centre, dist_mean)) + 
   geom_smooth(linewidth=2.0, color="grey30", method="lm") + 
   geom_point(size=3.0, color="grey20", alpha=0.8) + 
-  facet_wrap(~what_plot, scale = "free_y") + 
+  facet_wrap(~what_plot) + 
+  ylim(0.7, 2.4) +
   theme_bw(base_size = 14) +
   labs(x = "β", y = "Ring diameter", 
        title = "Particle simulator : Ring diameter increase with less wide-spread exocytosis (larger β)", 

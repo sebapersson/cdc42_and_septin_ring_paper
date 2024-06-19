@@ -402,4 +402,5 @@ process_ring_size <- function(tag, dir_data1, dir_data2, case_list, index_list=c
     ggsave(file.path(dir_save, "Sum_Mean.svg"), p2_sum, dpi=300, width = BASE_WIDTH, height = BASE_HEIGHT)
     ggsave(file.path(dir_save, "Sum_Outer.svg"), p3_sum, dpi=300, width = BASE_WIDTH, height = BASE_HEIGHT)
   }
+  return(data_plot_sum)
 }
