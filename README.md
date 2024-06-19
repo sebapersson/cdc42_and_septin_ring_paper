@@ -1,6 +1,6 @@
 # About
 
-GitHub repository for the manuscript **ADD**.
+GitHub repository for the manuscript **The origin of septin ring size control in budding yeast**.
 
 ## Plotting experimental data
 
@@ -10,15 +10,13 @@ The processed experimental data used in the manuscript's plots is located in the
 
 ### Running simulations
 
-TODO: Check these can run after refactoring.
-
 The scripts for the Cdc42 and Septin ring simulations are located in the `Code/cdc42_septin_simulations` directory, while the simulation code for the alternative model can be found in the `Code/cdc42_alt_simulations` directory. The simulation code is in Python, and you can set up the necessary Python environment using the provided Conda YAML file. To install the packages, given a conda installation enter the following command in the terminal:
 
 ```bash
 conda env create -f cdc42.yml
 ```
 
-Before running the main simulations, ensure that the pre-simulations specified in the `Run_pre_runs.py` files are completed. The models are simulated using a finite-element solver (FEM), with model geometry meshes created in [Gmsh](https://gmsh.info/). A Gmsh installation is not required—since we provide the generated `.msh` file in the simulation directory. When running a simulation the pvd-files and summary statistics (such as cluster area), are stored in the `Results` and `Intermediate` folders, respectively. Given the substantial computational resources required (over 10,000 CPU hours), these simulations are best run on a cluster. We can provide access to the large simulation files (too large for GitHub), upon request.
+Before running the main simulations, ensure that the pre-simulations specified in the `Run_pre_runs.py` files are completed, these files can also be provided upon request. The models are simulated using a finite-element solver (FEM), with model geometry meshes created in [Gmsh](https://gmsh.info/). A Gmsh installation is not required—since we provide the generated `.msh` file in the simulation directory. When running a simulation the pvd-files and summary statistics (such as cluster area), are stored in the `Results` and `Intermediate` folders, respectively. Given the substantial computational resources required (over 10,000 CPU hours), these simulations are best run on a cluster. We can provide access to the large simulation files (too large for GitHub), upon request.
 
 ### Process results
 
