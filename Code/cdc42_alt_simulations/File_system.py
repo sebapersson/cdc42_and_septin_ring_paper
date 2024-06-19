@@ -57,11 +57,11 @@ class FileLocations:
         
         # Mesh file-location paths
         if find_mesh != False:
-            self.msh_file = "../Generate_mesh/Find_mesh/Mesh_" + tag_nuc + tag_bud_scars + dens_tag + ".msh"
+            self.msh_file = "./Generate_mesh/Find_mesh/Mesh_" + tag_nuc + tag_bud_scars + dens_tag + ".msh"
             self.mesh_folder = ("../../Intermediate/Mesh/Find_mesh/Mesh_" + tag_nuc
                                 + tag_bud_scars + dens_tag + "/")
         else:
-            self.msh_file = "../Generate_mesh/Mesh_" + tag_nuc + tag_bud_scars + ".msh"
+            self.msh_file = "./Generate_mesh/Mesh_" + tag_nuc + tag_bud_scars + ".msh"
             self.mesh_folder = ("../../Intermediate/Mesh/" + tag_nuc
                                 + tag_bud_scars + "/")
         
