@@ -1,3 +1,4 @@
+setwd(file.path("Code", "process_results", "experimental_data"))
 library(tidyverse)
 library(stringr)
 library(ggthemes)
@@ -23,7 +24,7 @@ file_path <- file.path("..", "..", "..", "Data", "v0_cdc24_38a_cdc10_plotted_dat
 data_b <- read_csv(file_path, col_types = cols()) |> 
   mutate(logvolume = log10(cell_vol_at_max_ring_diam_fl), 
          log_diameter = log10(max_cdc10_ring_diameter * SCALE_DIAMETER))
-mybins <- cut(data_b$logvolume, breaks=9)
+mybins <- cut(data_b$logvolume, breaks=7)
 data_foo <- data_b |> 
   mutate(mybins = mybins) |> 
   group_by(strain_type, mybins) |> 
@@ -67,8 +68,8 @@ valx <- data_b |>
   group_by(mybins) |> 
   summarise(mean_x = mean(cell_vol_median_in_S))
 data_bins <- inner_join(data_foo, valx)
-data_wt <- (data_bins |> filter(strain_type != "mutant"))[2:5, ]
-data_mutant <- (data_bins |> filter(strain_type == "mutant"))[2:5, ]
+data_wt <- (data_bins |> filter(strain_type != "mutant"))[1:5, ]
+data_mutant <- (data_bins |> filter(strain_type == "mutant"))[1:5, ]
 ratio_val <- data_mutant$mean_val / data_wt$mean_val
 print(sprintf("Mean val = %.3f +/- %.3f", mean(ratio_val), sd(ratio_val)))
 
@@ -168,6 +169,10 @@ p1 <- ggplot(data_s, aes(frame_i, ring_diameter_mean, color = strain_type, fill 
         axis.title = element_text(color="grey10"),
         plot.title = element_text(color="grey10", face ="bold"), 
         plot.subtitle = element_text(color="grey30"))
+data_sum <- data_s |> 
+  group_by(strain_type) |> 
+  summarise(n_max = max(sample_size), 
+            n_mean = mean(sample_size))
 
 data_wt <- data_s |> 
   filter(strain_type == "WT") |> 

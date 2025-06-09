@@ -74,6 +74,11 @@ p2 <- ggplot(data_c, aes(frame_i, ring_diameter_mean, color = strain_type, fill 
         plot.title = element_text(color="grey10", face ="bold"), 
         plot.subtitle = element_text(color="grey30"))
 
+data_sum <- data_c |> 
+  group_by(strain_type) |> 
+  summarise(max_n = max(sample_size), 
+            mean_n = mean(sample_size))
+
 dir_save <- file.path("..", "..", "..", "Results", "Cdc24_kk", "Experimental_data")
 if(!dir.exists(dir_save)) dir.create(dir_save, recursive = T)
 

@@ -1,3 +1,4 @@
+setwd(file.path("Code", "process_results", "experimental_data"))
 library(tidyverse)
 library(stringr)
 library(ggthemes)
@@ -17,6 +18,9 @@ my_theme <- theme_bw(base_size = 16) + theme(
 BASE_HEIGHT <- 5
 BASE_WIDTH <- 7.0
 SCALE_AREA <- 0.0865202^2
+
+dir_save <- file.path("..", "..", "..", "Results", "Cluster_area", "Experimental_data")
+if (!dir.exists(dir_save)) dir.create(dir_save, recursive = T)
 
 # -----------------------------------------------------------------------------------------------------------
 # Cluster area (with hormone conc.) - Fig1
@@ -80,8 +84,6 @@ data_sum <- data |>
   group_by(strain_type) |>
   summarise(n = n())
 
-dir_save <- file.path("..", "..", "..", "Results", "Cluster_area", "Experimental_data")
-if (!dir.exists(dir_save)) dir.create(dir_save, recursive = T)
 ggsave(file.path(dir_save, "Pole_diameter_vol_WT.svg"), p1_WT, width = BASE_WIDTH, height = BASE_HEIGHT)
 ggsave(file.path(dir_save, "Pole_diameter_vol_mutant.svg"), p1_mutant, width = BASE_WIDTH, height = BASE_HEIGHT)
 
@@ -138,12 +140,13 @@ ggsave(file.path(dir_save, "Pole_diameter_intensity.svg"), p2, width = BASE_WIDT
 # -----------------------------------------------------------------------------------------------------------
 path_file <- file.path("..", "..", "..", "Data", "v1_cdc24_38a_whi5_cdc42_max_cluster_size.csv")
 data <- read_csv(path_file, col_types = cols()) |> 
-  filter(frame_i > -21 & frame_i < 21)
+  filter(frame_i > -21 & frame_i < 21) |> 
+  mutate(cluster_area = max_cdc42_cluster_size*SCALE_AREA)
 
-p1 <- ggplot(data, aes(frame_i*3, cdc42_cluster_size_um2_mean, color=strain_type, fill=strain_type)) + 
+p1 <- ggplot(data, aes(frame_i*3, cluster_area, color=strain_type, fill=strain_type)) + 
   geom_line(linewidth=1.5) + 
-  geom_ribbon(aes(ymin=cdc42_cluster_size_um2_mean-cdc42_cluster_size_um2_standard_error_mean, 
-                  ymax=cdc42_cluster_size_um2_mean+cdc42_cluster_size_um2_standard_error_mean), 
+  geom_ribbon(aes(ymin=cluster_area-cdc42_cluster_size_um2_standard_error_mean, 
+                  ymax=cluster_area+cdc42_cluster_size_um2_standard_error_mean), 
               alpha = 0.5) +
   labs(x = "Time since bud emergence [min]", y = "Cdc42-GTP cluster area [µm^2]") +
   theme_bw(base_size = 14) +
@@ -226,3 +229,75 @@ ggsave(file.path(dir_save, "Pole_volumes_whi5.svg"), p3, width = BASE_WIDTH, hei
 data_sum <- data |>
   group_by(hormone_conc, strain_type) |>
   summarise(n = n())
+
+# -----------------------------------------------------------------------------------------------------------
+# Hemizygote experiments
+# -----------------------------------------------------------------------------------------------------------
+path_file <- file.path("..", "..", "..", "Data", "UTF-8v1_cdc24_Bem1_Bem2_Cdc42_Gic2_hemi_cdc42_max_cluster_size.csv")
+data <- read_csv(path_file, col_types = cols()) |>
+  mutate(area = max_cdc42_cluster_size*SCALE_AREA)
+
+# We use WT median +- 25fL as filtering criteria for the plot
+diff <- 25
+wt_median <- data |>
+  filter(strain_type == "WT") |>
+  group_by(strain_type) |>
+  summarise(median = median(cell_vol_fl)) |>
+  pull(median)
+data_plot <- data |>
+  filter(cell_vol_fl > wt_median - diff) |>
+  filter(cell_vol_fl < wt_median + diff) |>
+  mutate(type_col = case_when(strain_type == "WT" ~ "WT",
+                              strain_type == "BEM2/bem2Δ" ~ "BEM2",
+                              T ~ "other"))
+
+col_use <- cbPalette[c(8, 1, 2)]
+p1 <- ggplot(data_plot, aes(strain_type, area, fill = type_col)) +
+  geom_boxplot() +
+  labs(x = "", y = "Cdc42 cluster area [µm²]") +
+  scale_x_discrete(limits = c("WT",  "CDC42/cdc42Δ", "CDC24/cdc24Δ", "BEM1/bem1Δ", "GIC2/gic2Δ", "BEM2/bem2Δ")) +
+  ylim(0.5, 5) +
+  scale_fill_manual(values = col_use) +
+  theme_bw(base_size = 14) +
+  theme(
+    legend.position = "none",
+    axis.title = element_text(color = "grey10"),
+    plot.title = element_text(color = "grey10", face = "bold"),
+    plot.subtitle = element_text(color = "grey30")
+  )
+
+data_n <- data_plot |>
+  group_by(strain_type) |>
+  summarise(n = n())
+
+data_test <- data_plot |>
+  filter(strain_type %in% c("WT", "CDC42/cdc42Δ"))
+wilcox.test(area ~ strain_type, data_test)
+data_test <- data_plot |>
+  filter(strain_type %in% c("WT", "CDC24/cdc24Δ"))
+wilcox.test(area ~ strain_type, data_test)
+data_test <- data_plot |>
+  filter(strain_type %in% c("WT", "BEM1/bem1Δ"))
+wilcox.test(area ~ strain_type, data_test)
+data_test <- data_plot |>
+  filter(strain_type %in% c("WT", "GIC2/gic2Δ"))
+wilcox.test(area ~ strain_type, data_test)
+data_test <- data_plot |>
+  filter(strain_type %in% c("WT", "BEM2/bem2Δ"))
+wilcox.test(area ~ strain_type, data_test)
+
+p2 <- ggplot(data_plot, aes(strain_type, cell_vol_fl, fill = type_col)) +
+  geom_boxplot() +
+  labs(x = "", y = "Cell volume [fL]") +
+  scale_x_discrete(limits = c("WT",  "CDC42/cdc42Δ", "CDC24/cdc24Δ", "BEM1/bem1Δ", "GIC2/gic2Δ", "BEM2/bem2Δ")) +
+  scale_fill_manual(values = col_use) +
+  theme_bw(base_size = 14) +
+  theme(
+    legend.position = "none",
+    axis.title = element_text(color = "grey10"),
+    plot.title = element_text(color = "grey10", face = "bold"),
+    plot.subtitle = element_text(color = "grey30")
+  )
+
+ggsave(file.path(dir_save, "Hemizygote_area.svg"), p1, width = BASE_WIDTH, height = BASE_HEIGHT)
+ggsave(file.path(dir_save, "Hemizygote_vol.svg"), p2, width = BASE_WIDTH, height = BASE_HEIGHT)

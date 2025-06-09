@@ -1,3 +1,5 @@
+setwd(file.path("Code", "process_results", "experimental_data"))
+
 library(tidyverse)
 library(stringr)
 library(ggthemes)
@@ -126,3 +128,173 @@ ggsave(file.path(dir_save, "Volume.svg"), p1, width = BASE_WIDTH, height = BASE_
 ggsave(file.path(dir_save, "Elongation.svg"), p2, width = BASE_WIDTH, height = BASE_HEIGHT)
 ggsave(file.path(dir_save, "Ring_diameter.svg"), p3, width = BASE_WIDTH, height = BASE_HEIGHT)
 ggsave(file.path(dir_save, "Prediction.svg"), p4, width = BASE_WIDTH, height = BASE_HEIGHT)
+
+
+# -----------------------------------------------------------------------------------------------------------------
+# Hemizygote experiments
+# -----------------------------------------------------------------------------------------------------------------
+path_file <- file.path("..", "..", "..", "Data", "UTF-8v0_cdc24_Bem1_Bem2_Cdc42_Gic2_hemi_cdc10_plotted_data.csv")
+data <- read_csv(path_file, col_types = cols()) |>
+  mutate(ring_diameter = max_cdc10_ring_diameter * 0.0865202,
+         cell_vol_fl = cell_vol_at_max_ring_diam_fl) |>
+  filter(ring_diameter < 4) # 2 data-points
+
+# We use WT median +- 25fL as filtering criteria for the plot
+diff <- 25
+wt_median <- data |>
+  filter(strain_type == "WT") |>
+  group_by(strain_type) |>
+  summarise(median = median(cell_vol_fl)) |>
+  pull(median)
+data_plot <- data |>
+  filter(cell_vol_fl > wt_median - diff) |>
+  filter(cell_vol_fl < wt_median + diff) |>
+  mutate(type_col = case_when(strain_type == "WT" ~ "WT",
+                              strain_type == "BEM2/bem2Δ" ~ "BEM2",
+                              T ~ "other"))
+
+col_use <- cbPalette[c(8, 1, 2)]
+p1 <- ggplot(data_plot, aes(strain_type, ring_diameter, fill = type_col)) +
+  geom_boxplot() +
+  labs(x = "", y = "Cdc10 ring diameter [µm]") +
+  scale_x_discrete(limits = c("WT",  "CDC42/cdc42Δ", "CDC24/cdc24Δ", "BEM1/bem1Δ", "GIC2/gic2Δ", "BEM2/bem2Δ")) +
+  scale_fill_manual(values = col_use) +
+  theme_bw(base_size = 14) +
+  theme(
+    legend.position = "none",
+    axis.title = element_text(color = "grey10"),
+    plot.title = element_text(color = "grey10", face = "bold"),
+    plot.subtitle = element_text(color = "grey30")
+  )
+
+p2 <- ggplot(data_plot, aes(strain_type, cell_vol_fl, fill = type_col)) +
+  geom_boxplot() +
+  labs(x = "", y = "Cell volume [fL]") +
+  scale_x_discrete(limits = c("WT",  "CDC42/cdc42Δ", "CDC24/cdc24Δ", "BEM1/bem1Δ", "GIC2/gic2Δ", "BEM2/bem2Δ")) +
+  scale_fill_manual(values = col_use) +
+  theme_bw(base_size = 14) +
+  theme(
+    legend.position = "none",
+    axis.title = element_text(color = "grey10"),
+    plot.title = element_text(color = "grey10", face = "bold"),
+    plot.subtitle = element_text(color = "grey30")
+  )
+
+data_plot_p3 <- data_plot |>
+  filter(strain_type %in% c("WT", "BEM2/bem2Δ"))
+
+p3 <- ggplot(data_plot_p3, aes(strain_type, ring_diameter, fill = type_col)) +
+  geom_boxplot(width = 0.5) +
+  labs(x = "", y = "Ring diameter [µm]") +
+  scale_x_discrete(limits = c("WT", "BEM2/bem2Δ")) +
+  scale_fill_manual(values = cbPalette[c(8, 2)]) +
+  theme_bw(base_size = 14) +
+  theme(
+    legend.position = "none",
+    axis.title = element_text(color = "grey10"),
+    plot.title = element_text(color = "grey10", face = "bold"),
+    plot.subtitle = element_text(color = "grey30")
+  )
+
+data_n <- data_plot |> 
+  group_by(strain_type) |>
+  summarise(n = n())
+
+ggsave(file.path(dir_save, "Homozygote_ring_diameter.svg"), p1, width = BASE_WIDTH, height = BASE_HEIGHT)
+ggsave(file.path(dir_save, "Homozygote_volume.svg"), p2, width = BASE_WIDTH, height = BASE_HEIGHT)
+ggsave(file.path(dir_save, "Homozygote_ring_bem2.svg"), p3, width = BASE_WIDTH, height = BASE_HEIGHT)
+
+# -----------------------------------------------------------------------------------------------------------------
+# Ts data
+# -----------------------------------------------------------------------------------------------------------------
+coluse <- c("#E69F00", "#D55E00")
+diff <- 25
+
+# Cdc10
+path_file <- file.path("..", "..", "..", "Data", "v0_ts_mutants_cdc10_plotted_data.csv")
+data <- read_csv(path_file, col_types = cols()) |>
+  mutate(ring_diameter = max_cdc10_ring_diameter * 0.0865202,
+         cell_vol_fl = cell_vol_at_max_ring_diam_fl)
+wt_median <- data |>
+  filter(strain_type == "WT") |>
+  group_by(strain_type) |>
+  summarise(median = median(cell_vol_fl)) |>
+  pull(median)
+data_plot <- data |>
+  filter(cell_vol_fl > wt_median - diff) |>
+  filter(cell_vol_fl < wt_median + diff) |>
+  mutate(strain_type = factor(strain_type, levels = c("WT", "TS_mutant")))
+
+p1 <- ggplot(data_plot, aes(strain_type, ring_diameter, fill = strain_type)) +
+  geom_boxplot(width = 0.5) +
+  scale_fill_manual(values = coluse) +
+  theme_bw(base_size = 14) +
+  theme(
+    legend.position = "none",
+    axis.title = element_text(color = "grey10"),
+    plot.title = element_text(color = "grey10", face = "bold"),
+    plot.subtitle = element_text(color = "grey30")
+  )
+ggsave(file.path(dir_save, "TS_ring_diameter.svg"), p1, width = BASE_WIDTH, height = BASE_HEIGHT)
+
+p2 <- ggplot(data_plot, aes(strain_type, cell_vol_fl, fill = strain_type)) +
+  geom_boxplot(width = 0.5) +
+  scale_fill_manual(values = coluse) +
+  theme_bw(base_size = 14) +
+  theme(
+    legend.position = "none",
+    axis.title = element_text(color = "grey10"),
+    plot.title = element_text(color = "grey10", face = "bold"),
+    plot.subtitle = element_text(color = "grey30")
+  )
+data_n <- data_plot |>
+  group_by(strain_type) |>
+  summarise(n = n())
+
+# Exo84
+path_file <- file.path("..", "..", "..", "Data", "v0_ts_mutants_exo84_plotted_data.csv")
+data <- read_csv(path_file, col_types = cols()) |>
+  mutate(exo84_diameter = max_exo84_cluster_diameter * 0.0865202,
+         cell_vol_fl = cell_vol_at_max_exo84_diam_fl)
+wt_median <- data |>
+  filter(strain_type == "WT") |>
+  group_by(strain_type) |>
+  summarise(median = median(cell_vol_fl)) |>
+  pull(median)
+data_plot <- data |>
+  filter(cell_vol_fl > wt_median - diff) |>
+  filter(cell_vol_fl < wt_median + diff) |>
+  mutate(strain_type = factor(strain_type, levels = c("WT", "TS_mutant")))
+
+p3 <- ggplot(data_plot, aes(strain_type, exo84_diameter, fill = strain_type)) +
+  geom_boxplot(width = 0.5) +
+  scale_fill_manual(values = coluse) +
+  theme_bw(base_size = 14) +
+  theme(
+    legend.position = "none",
+    axis.title = element_text(color = "grey10"),
+    plot.title = element_text(color = "grey10", face = "bold"),
+    plot.subtitle = element_text(color = "grey30")
+  )
+
+p4 <- ggplot(data_plot, aes(strain_type, cell_vol_fl, fill = strain_type)) +
+  geom_boxplot(width = 0.5) +
+  scale_fill_manual(values = coluse) +
+  theme_bw(base_size = 14) +
+  theme(
+    legend.position = "none",
+    axis.title = element_text(color = "grey10"),
+    plot.title = element_text(color = "grey10", face = "bold"),
+    plot.subtitle = element_text(color = "grey30")
+  )
+# 0.019 p-value
+wilcox.test(exo84_diameter ~ strain_type, data_plot)
+data_n <- data_plot |>
+  group_by(strain_type) |>
+  summarise(n = n())
+
+
+ggsave(file.path(dir_save, "TS_ring_diameter.svg"), p1, width = BASE_WIDTH, height = BASE_HEIGHT)
+ggsave(file.path(dir_save, "TS_ring_diameter_vol.svg"), p2, width = BASE_WIDTH, height = BASE_HEIGHT)
+ggsave(file.path(dir_save, "TS_exo84_diameter.svg"), p3, width = BASE_WIDTH, height = BASE_HEIGHT)
+ggsave(file.path(dir_save, "TS_exo84_diameter_vol.svg"), p4, width = BASE_WIDTH, height = BASE_HEIGHT)

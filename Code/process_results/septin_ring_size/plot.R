@@ -1,6 +1,6 @@
+setwd(file.path("Code", "process_results", "septin_ring_size"))
 library(tidyverse)
 library(stringr)
-library(ggthemes)
 library(readxl)
 
 source("ring_size_functions.R")
@@ -95,6 +95,40 @@ data_plot2 <- bind_rows(data1, data2) |>
 mean_val_ <- mean((data_plot2 |> filter(tag == "k20=0.5 WT"))$median_mean)
 data_norm2 <- data_plot2 |> 
   mutate(mean_val = mean_val_)
+
+
+print_res <- function()
+{
+  print(sprintf("k20=0.2: Max P: %.1f, Max GapS: %.1f, tmax: %.1f, Cdc42-max %.1f", max(data_full1$P), max(data_full1$GapS), max(data_full1$t), max(data_full1$Cdc42T)))
+  print(sprintf("NF k20=0.2: Max P: %.1f, Max GapS: %.1f tmax: %.1f, Cdc42-max %.1f", max(data_full2$P), max(data_full2$GapS), max(data_full2$t), max(data_full2$Cdc42T)))
+  print(sprintf("k20=0.5: Max P: %.1f, Max GapS: %.1f tmax: %.1f, Cdc42-max %.1f", max(data_full3$P), max(data_full3$GapS), max(data_full3$t), max(data_full3$Cdc42T)))
+  print(sprintf("NF k20=0.5: Max P: %.1f, Max GapS: %.1f tmax: %.1f, Cdc42-max %.1f", max(data_full4$P), max(data_full4$GapS), max(data_full4$t), max(data_full4$Cdc42T)))
+}
+dir_data1 <- file.path("..", "..", "..", "Intermediate", "Simulations", "Ring_size", "Test_k20", "_k2b1P8k5a4P0k5b32P0k12a200P0k12b1000P0k1362P5k140P0k172P5k191P5k200P2k2132P5k2221P0k235P2k240P02k255P5Kt0P001Dm0P072DmFOO0P016Dms0P288Dmss0P16Dc0P16DmGdp0P072Gd10P0Gk0P017k17_alt_noCrowding")
+dir_data2 <- file.path("..", "..", "..", "Intermediate", "Simulations", "Ring_size", "Test_k20_nf", "_k5a4P0k5b32P0k12a200P0k12b1000P0k1362P5k140P0k172P5k191P5k200P2k2132P5k2221P0k235P2k240P02k255P5Kt0P001Dm0P072DmFOO0P016Dms0P288Dmss0P16Dc0P16DmGdp0P072Gd10P0Gk0P017k17_alt_noCrowding")
+dir_data3 <- file.path("..", "..", "..", "Intermediate", "Simulations", "Ring_size", "Test_k20", "_k2b1P8k5a4P0k5b32P0k12a200P0k12b1000P0k1362P5k140P0k172P5k191P5k200P5k2132P5k2221P0k235P2k240P02k255P5Kt0P001Dm0P072DmFOO0P016Dms0P288Dmss0P16Dc0P16DmGdp0P072Gd10P0Gk0P017k17_alt_noCrowding")
+dir_data4 <- file.path("..", "..", "..", "Intermediate", "Simulations", "Ring_size", "Test_k20_nf", "_k5a4P0k5b32P0k12a200P0k12b1000P0k1362P5k140P0k172P5k191P5k200P5k2132P5k2221P0k235P2k240P02k255P5Kt0P001Dm0P072DmFOO0P016Dms0P288Dmss0P16Dc0P16DmGdp0P072Gd10P0Gk0P017k17_alt_noCrowding")
+
+# Test conc
+tfilt <- 1000
+data_full1 <- read_csv(file.path(dir_data1, "Distribution_data.csv"), col_types = cols()) |> 
+  filter(t < tfilt) |>
+  filter(t == max(t))
+data_full2 <- read_csv(file.path(dir_data2, "Distribution_data.csv"), col_types = cols()) |> 
+  filter(t < tfilt) |> 
+  filter(t == max(t))
+data_full3 <- read_csv(file.path(dir_data3, "Distribution_data.csv"), col_types = cols()) |>
+  filter(t < tfilt) |>
+  filter(t == max(t))
+data_full4 <- read_csv(file.path(dir_data4, "Distribution_data.csv"), col_types = cols()) |>
+  filter(t < tfilt) |>
+  filter(t == max(t))
+print_res()
+
+max(data_full1$P) # 217, 409
+data_full2 <- read_csv(file.path(dir_data2, "Distribution_data.csv"), col_types = cols()) |>
+  filter(t < 300)
+max(data_full2$P) # 162
 
 # Ring : "Mean val = 1.033 +/- 0.017"
 # Cluster : "Mean val = 1.213 +/- 0.139"
@@ -350,9 +384,9 @@ dir_data1 <- file.path("..", "..", "..", "Intermediate", "Simulations", "Ring_si
 dir_data2 <- file.path("..", "..", "..", "Intermediate", "Simulations", "Ring_size", "Axl2_v4", "No_cable_wide7small", "_k2b1P8k5a4P0k5b32P0k12a200P0k12b1000P0k1362P5k140P0k172P5k191P5k200P2k2132P5k2221P0k235P2k240P02k255P5Kt0P001Dm0P112DmFOO0P025Dms0P45Dmss0P25Dc0P25DmGdp0P112r0P8Gd10P0Gk0P017k17_alt_noCrowding")
 dir_data3 <- file.path("..", "..", "..", "Intermediate", "Simulations", "Ring_size", "Axl2_v4", "No_cable_wide8small", "_k2b1P8k5a4P0k5b32P0k12a200P0k12b1000P0k1362P5k140P0k172P5k191P5k200P2k2132P5k2221P0k235P2k240P02k255P5Kt0P001Dm0P112DmFOO0P025Dms0P45Dmss0P25Dc0P25DmGdp0P112r0P8Gd10P0Gk0P017k17_alt_noCrowding")
 
-res1 <- process_no_cable(dir_data1, c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10), "0.6", filter_t = 400) |> 
-  bind_rows(process_no_cable(dir_data2, c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10), "0.9", filter_t = 400)) |> 
-  bind_rows(process_no_cable(dir_data3, c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10), "0.99", filter_t = 400)) 
+res1 <- process_no_cable(dir_data1, c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10), "0.6", filter_t = 800) |> 
+  bind_rows(process_no_cable(dir_data2, c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10), "0.9", filter_t = 800)) |> 
+  bind_rows(process_no_cable(dir_data3, c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10), "0.99", filter_t = 800)) 
 
 data_plot <- res1 |> 
   group_by(tag, index) |> 
@@ -405,13 +439,14 @@ p3 <- ggplot(data_plot, aes(nodes_hit_n, median_outer)) +
         plot.title = element_text(color="grey10", face ="bold", size=15), 
         plot.subtitle = element_text(color="grey30"))
 
+data_tot$tag <- as.character(data_tot$tag)
 data_tot <- bind_rows(data_tot, mutate(data_plot, size = "Small"))
 write_csv(data_tot, ".Ring_tot.csv")
 
 # -----------------------------------------------------------------------------------------------------------
 # Different volumes
 # -----------------------------------------------------------------------------------------------------------
-data_tot <- read_csv("Ring_tot.csv")
+data_tot <- read_csv(".Ring_tot.csv")
 
 # We look closer for three of the values
 data_closer <- data_tot |> 
@@ -479,6 +514,22 @@ p3 <- ggplot(data_both, aes(cluster_area, median_mean)) +
        title = "Ring diameter increases with wide-spread exocytosis") +
   theme_bw(base_size = 14) +
   theme(legend.position = "none",
+        axis.title = element_text(color="grey10"),
+        plot.title = element_text(color="grey10", face ="bold", size=15), 
+        plot.subtitle = element_text(color="grey30"))
+
+# I messed up with tag here
+data_correct  <- data_both |>
+  mutate(tag = case_when(tag == 0.99 ~ 0.1, 
+                         tag == 0.9 ~ 0.2, 
+                         tag == 0.6 ~ 0.9)) |> 
+  mutate(tag = factor(tag))
+ggplot(data_correct, aes(cluster_area, median_mean)) + 
+  geom_point(aes(color = size, shape = tag), size=3.0) + 
+  labs(y = "Ring diameter", x = "Cluster area") + 
+  scale_fill_manual(values = coluse) +
+  theme_bw(base_size = 14) +
+  theme(legend.position = "bottom",
         axis.title = element_text(color="grey10"),
         plot.title = element_text(color="grey10", face ="bold", size=15), 
         plot.subtitle = element_text(color="grey30"))
